@@ -12,8 +12,8 @@ gulp.task('deals', function(callback) {
     callback();
 });
 
-// call task sync
+// call task async
 
-gulp.task('greeting', gulp.series('hello', 'deals'));
+gulp.task('greeting', gulp.parallel('hello', 'deals'));
 
 // gulp does not pass data among tasks
