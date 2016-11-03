@@ -17,5 +17,8 @@ gulp.task('default', function() {
                 extname: file.extname       // .js
             });
         })
-        .pipe(gulp.dest('dest'));
+        .pipe(gulp.dest(function(file) {
+            return file.extname === '.js' ? 'js' :
+                file.extname === '.html' ? 'html' : 'dest';
+        }));
 });
