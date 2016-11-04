@@ -4,11 +4,15 @@ const gulp = require('gulp');
 const stylus = require('gulp-stylus');
 const sourcemaps = require('gulp-sourcemaps');
 
+const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 gulp.task('styles', function() {
-    return gulp.src('frontend/styles/main.styl')
-        .pipe(sourcemaps.init())
-        .pipe(stylus())
-        .pipe(sourcemaps.write()) // можно внутри указать каталог для отдельного файла
-        .pipe(gulp.dest('public'));
+    let pipeline = gulp.src('frontend/styles/main.styl');
+
+    if(isDevelopment) pipeline = pipeline.pipe(sourcemaps.init());
+    pipeline.pipe(stylus());
+
+    if(isDevelopment) pipeline = pipeline.pipe(sourcemaps.write());
+
+    return pipeline.pipe(gulp.dest('public'));
 });
