@@ -3,7 +3,15 @@
 const gulp = require('gulp');
 
 gulp.task('default', function() {
-    return gulp.src('source/**/*.*')
+    /* minimatch syntax
+     * **//*.* - all files includes directories
+     *.{js,css} - js AND css
+     * not places
+     * {source, includes}/**//*.*  - some the same directories
+     * ['source/**//*.css', 'includes/*.js'] - some directories by order
+     * ['source/**//*.css', '!node_modules/**'] - exclude node_modules directory BAD WAY!
+     */
+    return gulp.src('source/**/*.*', {read: false}) // don't read files, e.g. video
         .on('data', function(file) { // event listener
             console.log({
                 contents: file.contents,
