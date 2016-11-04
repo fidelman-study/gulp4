@@ -29,5 +29,10 @@ gulp.task('clean', function() {
 
 gulp.task('build', gulp.series('clean', gulp.parallel('styles', 'assets')));
 
-gulp.watch('frontend/styles/**/*.*', gulp.series('styles'));
-gulp.watch('frontend/assets/**/*.*', gulp.series('assets'));
+gulp.task('watch', function() {
+    gulp.watch('frontend/styles/**/*.*', gulp.series('styles'));
+    gulp.watch('frontend/assets/**/*.*', gulp.series('assets'));
+});
+
+gulp.task('dev', gulp.series('build', 'watch'));
+
