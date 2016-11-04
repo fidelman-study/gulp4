@@ -6,12 +6,13 @@ const concat = require('gulp-concat');
 const remember = require('gulp-remember');
 const path = require('path');
 const cached = require('gulp-cached');
+const browserSync = require('browser-sync').create();
 
 gulp.task('styles', function() {
    return gulp.src('frontend/styles/**/*.css')
-       .pipe(cached('styles')) // разница с since в том, что он смотрит только на содержание
+       .pipe(cached('styles'))
        .pipe(autoprefixer())
-       .pipe(remember('styles')) // запоминает все прохожденные через него файлы, работает как связка с since
+       .pipe(remember('styles'))
        .pipe(concat('all.css'))
        .pipe(gulp.dest('public'));
 });
@@ -19,9 +20,19 @@ gulp.task('styles', function() {
 gulp.task('watch', function() {
    gulp.watch('frontend/styles/**/*.css', gulp.series('styles'))
        .on('unlink', function(filepath) {
-           remember.forget('styles', path.resolve(filepath)); // удаляет из модуля remember
-           delete cached.cashes.styles[path.resolve(filepath)]; // удаляет из модуля cached
+           remember.forget('styles', path.resolve(filepath));
+           delete cached.cashes.styles[path.resolve(filepath)];
        });
 });
 
-gulp.task('dev', gulp.series('styles', 'watch'));
+
+gulp.task('serve', function() {
+    browserSync.init({ // создали статический сервер
+        server: 'public'
+    });
+
+    browserSync.watch('public/**/*.*').on('change', browserSync.reload); // watcher на изменения
+
+});
+
+gulp.task('dev', gulp.series('styles', gulp.parallel('watch', 'serve')));
