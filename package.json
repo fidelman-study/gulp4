@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "gulp-concat": "^2.6.0",
     "gulp-stylus": "^2.6.0",
     "stylus": "^0.54.5"
   }
