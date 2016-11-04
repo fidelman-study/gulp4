@@ -5,6 +5,7 @@ const stylus = require('gulp-stylus');
 const sourcemaps = require('gulp-sourcemaps');
 const gulpIf = require('gulp-if');
 const del = require('del');
+const debug = require('gulp-debug');
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
@@ -17,8 +18,9 @@ gulp.task('styles', function() {
 });
 
 gulp.task('assets', function() {
-   return gulp.src('frontend/assets/**')
-       .pipe(gulp.dest('public'))
+   return gulp.src('frontend/assets/**', {since: gulp.lastRun('assets')}) // работать с файлами которые изменились с последнего запуска
+       .pipe(debug())
+       .pipe(gulp.dest('public'));
 });
 
 gulp.task('clean', function() {
