@@ -9,12 +9,12 @@ const del = require('del');
 const debug = require('gulp-debug');
 const notify = require('gulp-notify');
 const plumber = require('gulp-plumber');
-const multipipe = require('multipipe');
+const combiner = require('stream-combiner2').obj;
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 gulp.task('styles', function() {
-    return multipipe(
+    return combiner(
         gulp.src('frontend/styles/main.styl'),
         gulpIf(isDevelopment, sourcemaps.init()),
         stylus(),
