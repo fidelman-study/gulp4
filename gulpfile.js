@@ -9,23 +9,18 @@ const del = require('del');
 const debug = require('gulp-debug');
 const notify = require('gulp-notify');
 const plumber = require('gulp-plumber');
+const multipipe = require('multipipe');
 
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 gulp.task('styles', function() {
-    return gulp.src('frontend/styles/main.styl')
-        .pipe(plumber({
-            errorHandler: notify.onError(function(err) {
-            return {
-                title: 'Styles',
-                message: err.message
-            }
-        })}
-        ))
-        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
-        .pipe(stylus())
-        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
-        .pipe(gulp.dest('public'));
+    return multipipe(
+        gulp.src('frontend/styles/main.styl'),
+        gulpIf(isDevelopment, sourcemaps.init()),
+        stylus(),
+        gulpIf(isDevelopment, sourcemaps.write()),
+        gulp.dest('public')
+    ).on('error', notify.onError())
 });
 
 gulp.task('assets', function() {
