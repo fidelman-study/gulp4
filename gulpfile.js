@@ -1,38 +1,43 @@
+
 'use strict';
 
 const gulp = require('gulp');
-const autoprefixer = require('gulp-autoprefixer');
-const concat = require('gulp-concat');
-const remember = require('gulp-remember');
-const path = require('path');
-const cached = require('gulp-cached');
-const browserSync = require('browser-sync').create();
+const stylus = require('gulp-stylus');
+const sourcemaps = require('gulp-sourcemaps');
+const gulpIf = require('gulp-if');
+const del = require('del');
+const debug = require('gulp-debug');
+const notify = require('gulp-notify');
+
+const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 gulp.task('styles', function() {
-   return gulp.src('frontend/styles/**/*.css')
-       .pipe(cached('styles'))
-       .pipe(autoprefixer())
-       .pipe(remember('styles'))
-       .pipe(concat('all.css'))
-       .pipe(gulp.dest('public'));
+    return gulp.src('frontend/styles/main.styl')
+        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
+        .pipe(stylus())
+        .on('error', function(err) { // необходимо указать обработчик ошибок после pipe где может произойти ошибка
+            console.log(err.message);
+            this.end();
+        })
+        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
+        .pipe(gulp.dest('public'));
 });
+
+gulp.task('assets', function() {
+    return gulp.src('frontend/assets/**', {since: gulp.lastRun('assets')}) // работать с файлами которые изменились с последнего запуска
+        .pipe(debug())
+        .pipe(gulp.dest('public'));
+});
+
+gulp.task('clean', function() {
+    return del('public');
+});
+
+gulp.task('build', gulp.series('clean', gulp.parallel('styles', 'assets')));
 
 gulp.task('watch', function() {
-   gulp.watch('frontend/styles/**/*.css', gulp.series('styles'))
-       .on('unlink', function(filepath) {
-           remember.forget('styles', path.resolve(filepath));
-           delete cached.cashes.styles[path.resolve(filepath)];
-       });
+    gulp.watch('frontend/styles/**/*.*', gulp.series('styles'));
+    gulp.watch('frontend/assets/**/*.*', gulp.series('assets'));
 });
 
-
-gulp.task('serve', function() {
-    browserSync.init({ // создали статический сервер
-        server: 'public'
-    });
-
-    browserSync.watch('public/**/*.*').on('change', browserSync.reload); // watcher на изменения
-
-});
-
-gulp.task('dev', gulp.series('styles', gulp.parallel('watch', 'serve')));
+gulp.task('dev', gulp.series('build', 'watch'));
