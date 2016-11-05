@@ -15,10 +15,12 @@ gulp.task('styles', function() {
     return gulp.src('frontend/styles/main.styl')
         .pipe(gulpIf(isDevelopment, sourcemaps.init()))
         .pipe(stylus())
-        .on('error', function(err) { // необходимо указать обработчик ошибок после pipe где может произойти ошибка
-            console.log(err.message);
-            this.end();
-        })
+        .on('error', notify.onError(function(err) {
+            return {
+                title: 'Styles',
+                message: err.message
+            }
+        }))
         .pipe(gulpIf(isDevelopment, sourcemaps.write()))
         .pipe(gulp.dest('public'));
 });
